@@ -12,6 +12,13 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
 
 management:
   endpoints:
