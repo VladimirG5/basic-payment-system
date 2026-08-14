@@ -4,6 +4,22 @@ server:
 spring:
   application:
     name: gateway-service
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:banking}
+    username: ${DB_USERNAME:banking}
+    password: ${DB_PASSWORD:bankingpass}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: ${JWT_SECRET:dev-only-signing-key-change-me-before-any-real-deploy-32b}
+  expiration-seconds: 3600
 
 management:
   endpoints:

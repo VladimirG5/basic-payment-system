@@ -45,6 +45,14 @@ services:
     build:
       context: ./gateway-service
     container_name: gateway-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: banking
+      DB_USERNAME: banking
+      DB_PASSWORD: bankingpass
+      # Dev-only signing key committed for local/demo compose - not a real secret.
+      JWT_SECRET: dev-only-signing-key-change-me-before-any-real-deploy-32b
     ports:
       - "8080:8080"
     depends_on:
