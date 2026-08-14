@@ -57,6 +57,41 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(InvalidOtpException.class)
+    public ProblemDetail handleInvalidOtp(InvalidOtpException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("Invalid OTP");
+        return problem;
+    }
+
+    @ExceptionHandler(OtpChallengeExpiredException.class)
+    public ProblemDetail handleOtpChallengeExpired(OtpChallengeExpiredException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("OTP Challenge Expired");
+        return problem;
+    }
+
+    @ExceptionHandler(TooManyOtpAttemptsException.class)
+    public ProblemDetail handleTooManyOtpAttempts(TooManyOtpAttemptsException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage());
+        problem.setTitle("Too Many OTP Attempts");
+        return problem;
+    }
+
+    @ExceptionHandler(OtpChallengeOwnershipException.class)
+    public ProblemDetail handleOtpChallengeOwnership(OtpChallengeOwnershipException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+        problem.setTitle("Forbidden");
+        return problem;
+    }
+
+    @ExceptionHandler(CoreServiceException.class)
+    public ProblemDetail handleCoreServiceException(CoreServiceException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage());
+        problem.setTitle(ex.getTitle());
+        return problem;
+    }
+
     @ExceptionHandler(WebExchangeBindException.class)
     public ProblemDetail handleValidation(WebExchangeBindException ex) {
         String detail = ex.getFieldErrors().stream()

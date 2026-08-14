@@ -66,23 +66,23 @@ public class OtpChallengeService {
         return "OTP sent to " + maskedHint;
     }
 
-    public OtpValidationResult validate(String challengeId, String otpCode) {
-        AtomicReference<OtpValidationResult> outcome = new AtomicReference<>();
+    public OtpValidationOutcome validate(String challengeId, String otpCode) {
+        AtomicReference<OtpValidationOutcome> outcome = new AtomicReference<>();
 
         cache.asMap().compute(challengeId, (id, existing) -> {
             if (existing == null) {
-                outcome.set(OtpValidationResult.EXPIRED);
+                outcome.set(new OtpValidationOutcome(OtpValidationResult.EXPIRED, null));
                 return null;
             }
             if (existing.attemptCount() >= MAX_ATTEMPTS) {
-                outcome.set(OtpValidationResult.TOO_MANY_ATTEMPTS);
+                outcome.set(new OtpValidationOutcome(OtpValidationResult.TOO_MANY_ATTEMPTS, null));
                 return existing;
             }
             if (passwordEncoder.matches(otpCode, existing.hashedOtpCode())) {
-                outcome.set(OtpValidationResult.SUCCESS);
+                outcome.set(new OtpValidationOutcome(OtpValidationResult.SUCCESS, existing));
                 return null; // one-time use
             }
-            outcome.set(OtpValidationResult.FAILURE);
+            outcome.set(new OtpValidationOutcome(OtpValidationResult.FAILURE, null));
             return existing.withIncrementedAttempts();
         });
 

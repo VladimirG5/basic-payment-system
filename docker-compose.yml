@@ -53,6 +53,7 @@ services:
       DB_PASSWORD: bankingpass
       # Dev-only signing key committed for local/demo compose - not a real secret.
       JWT_SECRET: dev-only-signing-key-change-me-before-any-real-deploy-32b
+      PAYMENT_CORE_BASE_URL: http://payment-core-service:8081
     ports:
       - "8080:8080"
     depends_on:

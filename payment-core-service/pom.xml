@@ -39,6 +39,10 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
         </dependency>
@@ -71,7 +75,16 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>4.29.2</version>
                 <configuration>
-                    <changeLogFile>src/main/resources/db/changelog/db.changelog-master.yaml</changeLogFile>
+                    <!--
+                        Both changeLogFile and the master changelog's `include:` entries are
+                        resolved relative to searchPath, not the filesystem - without searchPath,
+                        Liquibase falls back to the classpath (target/classes), which only gets
+                        src/main/resources copied into it by process-resources. Running this goal
+                        standalone (mvn liquibase:update, no lifecycle phase) never triggers that,
+                        so on a fresh checkout with no target/ dir yet, resolution fails.
+                    -->
+                    <searchPath>src/main/resources</searchPath>
+                    <changeLogFile>db/changelog/db.changelog-master.yaml</changeLogFile>
                     <url>${liquibase.url}</url>
                     <username>${liquibase.username}</username>
                     <password>${liquibase.password}</password>
