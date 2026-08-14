@@ -10,6 +10,21 @@ jobs:
   core-service-test:
     name: payment-core-service tests
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: banking
+          MYSQL_USER: banking
+          MYSQL_PASSWORD: bankingpass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -uroot -prootpassword"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
@@ -20,6 +35,12 @@ jobs:
           cache: maven
       - name: Run tests
         working-directory: payment-core-service
+        env:
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_NAME: banking
+          DB_USERNAME: banking
+          DB_PASSWORD: bankingpass
         run: mvn -B test
 
   gateway-service-test:
