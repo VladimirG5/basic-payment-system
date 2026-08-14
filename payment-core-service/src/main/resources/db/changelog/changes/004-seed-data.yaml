@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-seed-users-and-accounts
+      author: vladimir
+      comment: >
+        Seed users for local testing ahead of the register endpoint existing.
+        All three share the plaintext password "Password123!" (bcrypt-hashed below).
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, valueNumeric: 1 }
+              - column: { name: full_name, value: Alice Johnson }
+              - column: { name: email, value: alice@example.com }
+              - column: { name: password_hash, value: "$2b$10$Blsi3HPQ2ZmHJg/ZCJvW.OskLIeR9m/j7JyGkdjU.ETKEVRMJhZ4K" }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, valueNumeric: 2 }
+              - column: { name: full_name, value: Bob Smith }
+              - column: { name: email, value: bob@example.com }
+              - column: { name: password_hash, value: "$2b$10$Uicg4PytgWuOKP8uE9IhnOAeWwFsnecW2k7j7.5tZ6NjmlHGeGDfe" }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, valueNumeric: 3 }
+              - column: { name: full_name, value: Carol Davis }
+              - column: { name: email, value: carol@example.com }
+              - column: { name: password_hash, value: "$2b$10$jDu.ed9FSEAM4yZCMJu3/u4rdJs2lIrN90wcvgQieeBOLOSMwLfIq" }
+        - insert:
+            tableName: accounts
+            columns:
+              - column: { name: id, valueNumeric: 1 }
+              - column: { name: user_id, valueNumeric: 1 }
+              - column: { name: iban, value: DE89370400440532013001 }
+              - column: { name: balance, valueNumeric: 1000.0000 }
+              - column: { name: currency, value: USD }
+              - column: { name: status, value: ACTIVE }
+        - insert:
+            tableName: accounts
+            columns:
+              - column: { name: id, valueNumeric: 2 }
+              - column: { name: user_id, valueNumeric: 2 }
+              - column: { name: iban, value: DE89370400440532013002 }
+              - column: { name: balance, valueNumeric: 2500.0000 }
+              - column: { name: currency, value: USD }
+              - column: { name: status, value: ACTIVE }
+        - insert:
+            tableName: accounts
+            columns:
+              - column: { name: id, valueNumeric: 3 }
+              - column: { name: user_id, valueNumeric: 3 }
+              - column: { name: iban, value: DE89370400440532013003 }
+              - column: { name: balance, valueNumeric: 500.0000 }
+              - column: { name: currency, value: USD }
+              - column: { name: status, value: ACTIVE }

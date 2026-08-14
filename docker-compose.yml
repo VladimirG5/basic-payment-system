@@ -23,6 +23,12 @@ services:
     build:
       context: ./payment-core-service
     container_name: payment-core-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: banking
+      DB_USERNAME: banking
+      DB_PASSWORD: bankingpass
     ports:
       - "8081:8081"
     depends_on:
