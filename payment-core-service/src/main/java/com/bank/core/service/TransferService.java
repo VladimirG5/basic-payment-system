@@ -48,7 +48,7 @@ public class TransferService {
         Account destinationAccount = destinationAccountId.equals(lowerId) ? lowerAccount : higherAccount;
 
         if (sourceAccount.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException(sourceAccountId, amount, sourceAccount.getBalance());
+            throw new InsufficientFundsException(amount, sourceAccount.getBalance());
         }
 
         sourceAccount.setBalance(sourceAccount.getBalance().subtract(amount));

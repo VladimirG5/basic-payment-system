@@ -37,7 +37,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void insufficientFundsMapsTo422() {
         ProblemDetail problem = handler.handleInsufficientFunds(
-                new InsufficientFundsException(5L, new BigDecimal("100"), new BigDecimal("10")));
+                new InsufficientFundsException(new BigDecimal("100"), new BigDecimal("10")));
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), problem.getStatus());
         assertEquals("Insufficient Funds", problem.getTitle());
     }

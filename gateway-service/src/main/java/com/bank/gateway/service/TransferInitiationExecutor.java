@@ -41,7 +41,7 @@ class TransferInitiationExecutor {
         }
 
         if (source.getBalance().compareTo(request.amount()) < 0) {
-            throw new InsufficientFundsException(source.getId(), request.amount(), source.getBalance());
+            throw new InsufficientFundsException(request.amount(), source.getBalance());
         }
 
         OtpChallengeService.CreatedOtpChallenge challenge = otpChallengeService.create(
