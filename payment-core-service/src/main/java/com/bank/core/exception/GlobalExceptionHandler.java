@@ -31,6 +31,20 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ProblemDetail handleDuplicateEmail(DuplicateEmailException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Email Already Registered");
+        return problem;
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleUserNotFound(UserNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problem.setTitle("User Not Found");
+        return problem;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         String detail = ex.getBindingResult().getFieldErrors().stream()
