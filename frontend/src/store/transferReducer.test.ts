@@ -108,6 +108,31 @@ describe('transferReducer', () => {
     expect(effect).toEqual({ type: 'NONE' });
   });
 
+  it('SUBMIT_OTP retries from ERROR when a challenge is on hand (a failed confirm attempt)', () => {
+    const failedConfirm: TransferState = {
+      ...initialTransferState,
+      step: 'ERROR',
+      error: 'Invalid OTP',
+      challenge: { challengeId: 'chal-1', expiresAt: '2026-08-15T12:03:00Z' },
+    };
+
+    const [state, effect] = transferReducer(failedConfirm, { type: 'SUBMIT_OTP', otpCode: '654321' });
+
+    expect(state.step).toBe('SUBMITTING');
+    expect(state.otpCode).toBe('654321');
+    expect(state.error).toBeNull();
+    expect(effect).toEqual({ type: 'CALL_CONFIRM' });
+  });
+
+  it('SUBMIT_OTP is still a no-op from ERROR when there is no challenge (a failed initiate attempt)', () => {
+    const failedInitiate: TransferState = { ...initialTransferState, step: 'ERROR', error: 'Insufficient funds' };
+
+    const [state, effect] = transferReducer(failedInitiate, { type: 'SUBMIT_OTP', otpCode: '654321' });
+
+    expect(state).toBe(failedInitiate);
+    expect(effect).toEqual({ type: 'NONE' });
+  });
+
   it('TRANSFER_SUCCESS moves SUBMITTING -> SUCCESS and stores the result', () => {
     const submitting: TransferState = { ...initialTransferState, step: 'SUBMITTING' };
 

@@ -5,6 +5,7 @@ import type { AccountResponse, TransactionResponse } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { BalanceCard } from './BalanceCard';
 import { TransactionList } from './TransactionList';
+import { TransferWizard } from './TransferWizard';
 
 export function Dashboard() {
   const { email, logout } = useAuth();
@@ -12,6 +13,7 @@ export function Dashboard() {
   const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showWizard, setShowWizard] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,6 +40,26 @@ export function Dashboard() {
     };
   }, []);
 
+  async function refreshAccountData(accountId: number) {
+    try {
+      const [accountResponse, transactionsResponse] = await Promise.all([
+        getMyAccount(),
+        getTransactions(accountId),
+      ]);
+      setAccount(accountResponse);
+      setTransactions(transactionsResponse);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  }
+
+  function handleTransferSuccess() {
+    setShowWizard(false);
+    if (account) {
+      refreshAccountData(account.accountId);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 p-4">
       <div className="mx-auto max-w-sm space-y-4">
@@ -63,8 +85,28 @@ export function Dashboard() {
         )}
 
         {account && <BalanceCard account={account} />}
+
+        {account && (
+          <button
+            type="button"
+            onClick={() => setShowWizard(true)}
+            className="w-full rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white"
+          >
+            Send money
+          </button>
+        )}
+
         {account && <TransactionList transactions={transactions} />}
       </div>
+
+      {showWizard && account && (
+        <TransferWizard
+          sourceAccountId={account.accountId}
+          currency={account.currency}
+          onClose={() => setShowWizard(false)}
+          onSuccess={handleTransferSuccess}
+        />
+      )}
     </div>
   );
 }

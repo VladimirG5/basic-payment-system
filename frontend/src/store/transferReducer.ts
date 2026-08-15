@@ -54,7 +54,12 @@ export function transferReducer(state: TransferState, action: TransferAction): T
     }
 
     case 'SUBMIT_OTP': {
-      if (state.step !== 'AWAITING_OTP') {
+      // Also allowed from ERROR when a challenge is already on hand - that's a failed
+      // confirm attempt (wrong/expired code), and the user should be able to retry OTP
+      // entry in place rather than restart the whole transfer. An ERROR with no challenge
+      // means the earlier *initiate* call failed, which this action can't recover from.
+      const retryingOtp = state.step === 'ERROR' && state.challenge !== null;
+      if (state.step !== 'AWAITING_OTP' && !retryingOtp) {
         return unchanged(state);
       }
       return [
