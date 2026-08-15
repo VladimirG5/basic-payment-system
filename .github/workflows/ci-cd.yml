@@ -33,7 +33,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Run tests
+      - name: Run tests and enforce coverage threshold
         working-directory: payment-core-service
         env:
           DB_HOST: localhost
@@ -41,7 +41,7 @@ jobs:
           DB_NAME: banking
           DB_USERNAME: banking
           DB_PASSWORD: bankingpass
-        run: mvn -B test
+        run: mvn -B verify
 
   gateway-service-test:
     name: gateway-service tests
@@ -72,7 +72,7 @@ jobs:
       - name: Apply payment-core-service schema migrations
         working-directory: payment-core-service
         run: mvn -B liquibase:update
-      - name: Run tests
+      - name: Run tests and enforce coverage threshold
         working-directory: gateway-service
         env:
           DB_HOST: localhost
@@ -80,7 +80,7 @@ jobs:
           DB_NAME: banking
           DB_USERNAME: banking
           DB_PASSWORD: bankingpass
-        run: mvn -B test
+        run: mvn -B verify
 
   auth-service-test:
     name: auth-service tests
@@ -93,9 +93,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Run tests
+      - name: Run tests and enforce coverage threshold
         working-directory: auth-service
-        run: mvn -B test
+        run: mvn -B verify
 
   frontend-build:
     name: frontend build
