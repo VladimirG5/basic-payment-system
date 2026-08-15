@@ -50,7 +50,7 @@ public class TransferConfirmService {
                 challenge.sourceAccountId(), challenge.destinationAccountId(),
                 challenge.amount(), challenge.currency(), challenge.description());
 
-        return paymentCoreClient.executeTransfer(coreRequest)
+        return paymentCoreClient.executeTransfer(coreRequest, userId)
                 .map(result -> new TransferConfirmResponse("SUCCESS", result.transactionId(), result.sourceNewBalance()))
                 .doOnNext(response -> idempotencyService.put(idempotencyKey, response));
     }

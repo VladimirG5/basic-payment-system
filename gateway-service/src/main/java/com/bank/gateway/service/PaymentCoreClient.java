@@ -26,9 +26,10 @@ public class PaymentCoreClient {
         this.webClient = coreServiceWebClient;
     }
 
-    public Mono<InternalTransferResult> executeTransfer(InternalTransferRequest request) {
+    public Mono<InternalTransferResult> executeTransfer(InternalTransferRequest request, Long userId) {
         return webClient.post()
                 .uri("/internal/transfers")
+                .header("X-User-Id", String.valueOf(userId))
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, this::toCoreServiceException)

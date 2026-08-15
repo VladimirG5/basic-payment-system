@@ -55,6 +55,13 @@
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <!-- MDC-in-WebFlux support - see gateway-service's pom.xml for why this is needed
+                 and why the version is pinned above what Spring Boot's BOM provides. -->
+            <groupId>io.micrometer</groupId>
+            <artifactId>context-propagation</artifactId>
+            <version>1.2.1</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

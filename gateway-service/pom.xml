@@ -68,6 +68,15 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
         </dependency>
+        <dependency>
+            <!-- MDC-in-WebFlux support: lets a value set via MDC.put() inside a reactive chain
+                 survive Reactor's thread-hopping, so log lines carry userId even though the
+                 request isn't pinned to one thread. Explicit version - Spring Boot 3.3.5's BOM
+                 pins 1.1.2, which was verified empirically not to propagate MDC correctly. -->
+            <groupId>io.micrometer</groupId>
+            <artifactId>context-propagation</artifactId>
+            <version>1.2.1</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

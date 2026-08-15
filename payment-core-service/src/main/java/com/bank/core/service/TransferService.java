@@ -6,6 +6,8 @@ import com.bank.core.exception.AccountNotFoundException;
 import com.bank.core.exception.InsufficientFundsException;
 import com.bank.core.repository.AccountRepository;
 import com.bank.core.repository.TransactionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import java.math.BigDecimal;
 public class TransferService {
 
     private static final String TRANSACTION_STATUS_COMPLETED = "COMPLETED";
+    private static final Logger log = LoggerFactory.getLogger(TransferService.class);
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
@@ -54,6 +57,9 @@ public class TransferService {
         Transaction transaction = new Transaction(sourceAccountId, destinationAccountId, amount, currency,
                 TRANSACTION_STATUS_COMPLETED, referenceNote);
         transaction = transactionRepository.save(transaction);
+
+        log.info("Transfer executed: transactionId={} source={} destination={} amount={} {}",
+                transaction.getId(), sourceAccountId, destinationAccountId, amount, currency);
 
         return new TransferResult(
                 transaction.getId(),

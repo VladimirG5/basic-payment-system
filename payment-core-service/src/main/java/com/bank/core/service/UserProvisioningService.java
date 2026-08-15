@@ -10,6 +10,8 @@ import com.bank.core.exception.DuplicateEmailException;
 import com.bank.core.exception.UserNotFoundException;
 import com.bank.core.repository.AccountRepository;
 import com.bank.core.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class UserProvisioningService {
     private static final String IBAN_PREFIX = "DE89370400440532";
     private static final String DEFAULT_CURRENCY = "USD";
     private static final SecureRandom RANDOM = new SecureRandom();
+    private static final Logger log = LoggerFactory.getLogger(UserProvisioningService.class);
 
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
@@ -69,6 +72,7 @@ public class UserProvisioningService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
         user.setPasswordHash(passwordHash);
         userRepository.save(user);
+        log.info("Password hash updated for userId={}", userId);
     }
 
     private UserCredentialsResult toCredentialsResult(User user) {

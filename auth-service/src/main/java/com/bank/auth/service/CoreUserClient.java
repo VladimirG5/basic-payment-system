@@ -48,6 +48,7 @@ public class CoreUserClient {
     public Mono<UserCredentials> findById(Long userId) {
         return webClient.get()
                 .uri("/internal/users/{userId}", userId)
+                .header("X-User-Id", String.valueOf(userId))
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, this::toCoreServiceException)
                 .bodyToMono(UserCredentials.class);
@@ -56,6 +57,7 @@ public class CoreUserClient {
     public Mono<Void> updatePassword(Long userId, String passwordHash) {
         return webClient.patch()
                 .uri("/internal/users/{userId}/password", userId)
+                .header("X-User-Id", String.valueOf(userId))
                 .bodyValue(new UpdatePasswordRequest(passwordHash))
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, this::toCoreServiceException)
