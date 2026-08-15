@@ -1,5 +1,6 @@
 package com.bank.gateway.service;
 
+import com.bank.gateway.audit.AuditLogger;
 import com.bank.gateway.dto.InternalTransferRequest;
 import com.bank.gateway.dto.OtpChallengeDto;
 import com.bank.gateway.dto.TransferConfirmRequest;
@@ -17,12 +18,14 @@ public class TransferConfirmService {
     private final OtpChallengeService otpChallengeService;
     private final PaymentCoreClient paymentCoreClient;
     private final TransferIdempotencyService idempotencyService;
+    private final AuditLogger auditLogger;
 
     public TransferConfirmService(OtpChallengeService otpChallengeService, PaymentCoreClient paymentCoreClient,
-                                   TransferIdempotencyService idempotencyService) {
+                                   TransferIdempotencyService idempotencyService, AuditLogger auditLogger) {
         this.otpChallengeService = otpChallengeService;
         this.paymentCoreClient = paymentCoreClient;
         this.idempotencyService = idempotencyService;
+        this.auditLogger = auditLogger;
     }
 
     public Mono<TransferConfirmResponse> confirm(Long userId, String idempotencyKey, TransferConfirmRequest request) {
@@ -32,6 +35,9 @@ public class TransferConfirmService {
         }
 
         OtpValidationOutcome outcome = otpChallengeService.validate(request.challengeId(), request.otpCode());
+        auditLogger.log(String.valueOf(userId), "OTP_VALIDATE", outcome.result().name(),
+                "challenge:" + request.challengeId(), null);
+
         return switch (outcome.result()) {
             case SUCCESS -> executeTransfer(userId, idempotencyKey, outcome.challenge());
             case FAILURE -> Mono.error(new InvalidOtpException("Invalid OTP code"));
@@ -42,6 +48,8 @@ public class TransferConfirmService {
 
     private Mono<TransferConfirmResponse> executeTransfer(Long userId, String idempotencyKey, OtpChallengeDto challenge) {
         if (!challenge.userId().equals(userId)) {
+            auditLogger.log(String.valueOf(userId), "TRANSFER_CONFIRM", "FAILURE",
+                    "challenge:" + challenge.challengeId(), "OTP challenge ownership mismatch");
             return Mono.error(new OtpChallengeOwnershipException(
                     "OTP challenge does not belong to the authenticated user"));
         }
@@ -52,6 +60,12 @@ public class TransferConfirmService {
 
         return paymentCoreClient.executeTransfer(coreRequest, userId)
                 .map(result -> new TransferConfirmResponse("SUCCESS", result.transactionId(), result.sourceNewBalance()))
-                .doOnNext(response -> idempotencyService.put(idempotencyKey, response));
+                .doOnNext(response -> {
+                    idempotencyService.put(idempotencyKey, response);
+                    auditLogger.log(String.valueOf(userId), "TRANSFER_CONFIRM", "SUCCESS",
+                            "transactionId:" + response.transactionId(), null);
+                })
+                .doOnError(ex -> auditLogger.log(String.valueOf(userId), "TRANSFER_CONFIRM", "FAILURE",
+                        "challenge:" + challenge.challengeId(), ex.getMessage()));
     }
 }

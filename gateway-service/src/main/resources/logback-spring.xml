@@ -22,6 +22,27 @@
         </encoder>
     </appender>
 
+    <!-- AuditLogger writes one JSON line per security-relevant event here - separate from the
+         application log so it can be shipped/retained independently. additivity="false" keeps
+         these lines out of FILE/CONSOLE above; %msg%n only since AuditEvent already carries
+         its own timestamp field. -->
+    <appender name="AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/audit.log</file>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/archived/audit.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>90</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="AUDIT" level="INFO" additivity="false">
+        <appender-ref ref="AUDIT_FILE" />
+    </logger>
+
     <root level="INFO">
         <appender-ref ref="FILE" />
         <appender-ref ref="CONSOLE" />

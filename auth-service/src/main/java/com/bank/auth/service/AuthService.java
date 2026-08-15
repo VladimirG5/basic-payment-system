@@ -1,5 +1,6 @@
 package com.bank.auth.service;
 
+import com.bank.auth.audit.AuditLogger;
 import com.bank.auth.dto.ChangePasswordRequest;
 import com.bank.auth.dto.CreateUserRequest;
 import com.bank.auth.dto.LoginRequest;
@@ -43,19 +44,28 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final CoreUserClient coreUserClient;
+    private final AuditLogger auditLogger;
 
-    public AuthService(PasswordEncoder passwordEncoder, JwtService jwtService, CoreUserClient coreUserClient) {
+    public AuthService(PasswordEncoder passwordEncoder, JwtService jwtService, CoreUserClient coreUserClient,
+                        AuditLogger auditLogger) {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.coreUserClient = coreUserClient;
+        this.auditLogger = auditLogger;
     }
 
     public Mono<RegisterResponse> register(RegisterRequest request) {
         CreateUserRequest createUserRequest = new CreateUserRequest(
                 request.fullName(), request.email(), passwordEncoder.encode(request.password()));
         return coreUserClient.createUser(createUserRequest)
-                .doOnNext(response -> log.info("User registered: userId={}", response.userId()))
-                .doOnError(CoreServiceException.class, ex -> log.warn("Registration failed: {}", ex.getMessage()))
+                .doOnNext(response -> {
+                    log.info("User registered: userId={}", response.userId());
+                    auditLogger.log(request.email(), "REGISTER", "SUCCESS", "user:" + response.userId(), null);
+                })
+                .doOnError(CoreServiceException.class, ex -> {
+                    log.warn("Registration failed: {}", ex.getMessage());
+                    auditLogger.log(request.email(), "REGISTER", "FAILURE", null, ex.getMessage());
+                })
                 .contextWrite(Context.of(EMAIL_MDC_KEY, request.email()));
     }
 
@@ -69,10 +79,16 @@ public class AuthService {
                     String token = jwtService.generateToken(user.userId(), user.email(), List.of("USER"));
                     Instant expiresAt = Instant.now().plusSeconds(jwtService.getExpirationSeconds());
                     return Mono.just(new LoginResponse(token, "Bearer", expiresAt))
-                            .doOnNext(response -> log.info("Login succeeded for userId={}", user.userId()))
+                            .doOnNext(response -> {
+                                log.info("Login succeeded for userId={}", user.userId());
+                                auditLogger.log(request.email(), "LOGIN", "SUCCESS", "user:" + user.userId(), null);
+                            })
                             .contextWrite(Context.of(USER_ID_MDC_KEY, String.valueOf(user.userId())));
                 })
-                .doOnError(InvalidCredentialsException.class, ex -> log.warn("Login failed: {}", ex.getMessage()))
+                .doOnError(InvalidCredentialsException.class, ex -> {
+                    log.warn("Login failed: {}", ex.getMessage());
+                    auditLogger.log(request.email(), "LOGIN", "FAILURE", null, ex.getMessage());
+                })
                 .contextWrite(Context.of(EMAIL_MDC_KEY, request.email()));
     }
 
@@ -89,9 +105,14 @@ public class AuthService {
                             }
                             return coreUserClient.updatePassword(userId, passwordEncoder.encode(request.newPassword()));
                         })
-                        .doOnSuccess(ignored -> log.info("Password changed for userId={}", userId))
-                        .doOnError(InvalidCredentialsException.class,
-                                ex -> log.warn("Password change failed for userId={}: {}", userId, ex.getMessage()))
+                        .doOnSuccess(ignored -> {
+                            log.info("Password changed for userId={}", userId);
+                            auditLogger.log(String.valueOf(userId), "CHANGE_PASSWORD", "SUCCESS", null, null);
+                        })
+                        .doOnError(InvalidCredentialsException.class, ex -> {
+                            log.warn("Password change failed for userId={}: {}", userId, ex.getMessage());
+                            auditLogger.log(String.valueOf(userId), "CHANGE_PASSWORD", "FAILURE", null, ex.getMessage());
+                        })
                         .contextWrite(Context.of(USER_ID_MDC_KEY, String.valueOf(userId))));
     }
 

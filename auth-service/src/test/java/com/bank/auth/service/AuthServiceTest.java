@@ -1,5 +1,6 @@
 package com.bank.auth.service;
 
+import com.bank.auth.audit.AuditLogger;
 import com.bank.auth.dto.ChangePasswordRequest;
 import com.bank.auth.dto.CreateUserRequest;
 import com.bank.auth.dto.LoginRequest;
@@ -37,6 +38,7 @@ class AuthServiceTest {
     private PasswordEncoder passwordEncoder;
     private JwtService jwtService;
     private CoreUserClient coreUserClient;
+    private AuditLogger auditLogger;
     private AuthService authService;
 
     @BeforeEach
@@ -44,7 +46,8 @@ class AuthServiceTest {
         passwordEncoder = mock(PasswordEncoder.class);
         jwtService = mock(JwtService.class);
         coreUserClient = mock(CoreUserClient.class);
-        authService = new AuthService(passwordEncoder, jwtService, coreUserClient);
+        auditLogger = mock(AuditLogger.class);
+        authService = new AuthService(passwordEncoder, jwtService, coreUserClient, auditLogger);
     }
 
     @Test
