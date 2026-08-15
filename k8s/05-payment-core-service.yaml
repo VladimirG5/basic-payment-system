@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-core-service
+  namespace: banking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-core-service
+  template:
+    metadata:
+      labels:
+        app: payment-core-service
+    spec:
+      containers:
+        - name: payment-core-service
+          image: payment-core-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          env:
+            - name: DB_HOST
+              value: mysql
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-database
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-password
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: encryption-secret
+                  key: encryption-key
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 15
+---
+# No explicit type - defaults to ClusterIP, i.e. internal-only. payment-core-service is not
+# public-facing (see README's architecture section); unlike docker-compose, which publishes
+# every port for local-dev convenience, this is the accurate topology.
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-core-service
+  namespace: banking
+spec:
+  selector:
+    app: payment-core-service
+  ports:
+    - port: 8081
