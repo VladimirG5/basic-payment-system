@@ -72,13 +72,17 @@ services:
       DB_NAME: banking
       DB_USERNAME: banking
       DB_PASSWORD: bankingpass
-      # Dev-only signing key committed for local/demo compose - not a real secret.
+      # Dev-only signing key committed for local/demo compose - not a real secret. Must match
+      # auth-service's JWT_SECRET above - auth-service issues tokens, gateway validates them.
       JWT_SECRET: dev-only-signing-key-change-me-before-any-real-deploy-32b
       PAYMENT_CORE_BASE_URL: http://payment-core-service:8081
+      AUTH_SERVICE_BASE_URL: http://auth-service:8082
     ports:
       - "8080:8080"
     depends_on:
       payment-core-service:
+        condition: service_healthy
+      auth-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]

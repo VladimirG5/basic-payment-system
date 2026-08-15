@@ -13,4 +13,10 @@ public class WebClientConfig {
                                            @Value("${payment-core.base-url}") String baseUrl) {
         return builder.baseUrl(baseUrl).build();
     }
+
+    @Bean
+    public WebClient authServiceWebClient(WebClient.Builder builder,
+                                           @Value("${auth-service.base-url}") String baseUrl) {
+        return builder.baseUrl(baseUrl).build();
+    }
 }

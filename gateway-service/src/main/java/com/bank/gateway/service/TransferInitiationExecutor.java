@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Blocking validation for transfer initiation, reading balances directly off the shared
- * accounts table (same shortcut as RegistrationExecutor/AuthService - see the domain
- * package-info for why gateway talks to the DB directly instead of calling payment-core-service).
+ * accounts table (same shortcut as AccountService's read paths - see the domain package-info
+ * for why gateway talks to the DB directly instead of calling payment-core-service).
  * No write happens here: the actual debit/credit only occurs in payment-core-service once the
  * OTP is confirmed, so this stays outside a @Transactional boundary.
  */

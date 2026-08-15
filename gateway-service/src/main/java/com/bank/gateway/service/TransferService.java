@@ -8,7 +8,7 @@ import reactor.core.scheduler.Schedulers;
 
 /**
  * Reactive wrapper around TransferInitiationExecutor's blocking JDBC calls, same pattern as
- * AuthService: offload to boundedElastic so Netty's event-loop threads are never blocked.
+ * AccountService: offload to boundedElastic so Netty's event-loop threads are never blocked.
  */
 @Service
 public class TransferService {

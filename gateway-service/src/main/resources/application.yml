@@ -19,10 +19,12 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET:dev-only-signing-key-change-me-before-any-real-deploy-32b}
-  expiration-seconds: 3600
 
 payment-core:
   base-url: ${PAYMENT_CORE_BASE_URL:http://localhost:8081}
+
+auth-service:
+  base-url: ${AUTH_SERVICE_BASE_URL:http://localhost:8082}
 
 management:
   endpoints:
