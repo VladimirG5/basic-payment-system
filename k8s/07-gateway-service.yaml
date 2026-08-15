@@ -53,6 +53,11 @@ spec:
               value: http://payment-core-service:8081
             - name: AUTH_SERVICE_BASE_URL
               value: http://auth-service:8082
+            # Best-effort default - minikube's Docker driver tunnels NodePort Services to a
+            # random local port per `minikube service --url`, so this won't always match the
+            # frontend's actual origin. Known gap, documented in the top-level README.
+            - name: CORS_ALLOWED_ORIGINS
+              value: http://localhost:30080
           readinessProbe:
             httpGet:
               path: /actuator/health

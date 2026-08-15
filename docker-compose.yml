@@ -83,6 +83,9 @@ services:
       # Dev-only key committed for local/demo compose - not a real secret. Must match
       # payment-core-service's ENCRYPTION_KEY above.
       ENCRYPTION_KEY: mzD/i0fiHcYLv3g0wwTlvAp49wYo1MFNRYBM/f52XPI=
+      # Must match the origin the browser actually loads the frontend from - see frontend's
+      # published port below.
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
     ports:
       - "8080:8080"
     depends_on:

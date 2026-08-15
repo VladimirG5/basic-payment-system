@@ -16,6 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.cors.reactive.CorsUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -50,6 +51,13 @@ public class JwtAuthenticationWebFilter implements WebFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        // A CORS preflight never carries the real Authorization header (browsers don't send
+        // custom headers on it) - it has to reach Spring's own CORS handling further down the
+        // chain to get a proper preflight response, not be rejected here as unauthenticated.
+        if (CorsUtils.isPreFlightRequest(exchange.getRequest())) {
+            return chain.filter(exchange);
+        }
+
         String path = exchange.getRequest().getPath().value();
         if (isExcluded(path)) {
             return chain.filter(exchange);
