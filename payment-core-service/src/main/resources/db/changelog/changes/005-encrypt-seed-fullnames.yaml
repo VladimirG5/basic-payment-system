@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-encrypt-seed-fullnames
+      author: vladimir
+      comment: >
+        Migrates the plaintext full_name values seeded in 004 to AES-GCM ciphertext, now that
+        User.fullName is encrypted at the application layer (EncryptedStringConverter). These
+        rows were inserted via raw SQL, bypassing Hibernate/the converter entirely, so they'd
+        otherwise stay plaintext forever and fail to decrypt on read. Ciphertext pre-computed
+        once against the dev-only ENCRYPTION_KEY default (application.yml) - same approach
+        already used for the seeded bcrypt password hashes in 004. Round-trip verified before
+        committing these literal values.
+      changes:
+        - update:
+            tableName: users
+            columns:
+              - column: { name: full_name, value: "NPKYG5gzVvbq6bSsvJeZRstz5gVkSezNEfTqaN2S1ehArvwT/QvrXz8=" }
+            where: id=1
+        - update:
+            tableName: users
+            columns:
+              - column: { name: full_name, value: "xXca9nS49D0IANJZXHyWH8Hl6uApx8HGlPS4RtrVSI3kyv1xLg==" }
+            where: id=2
+        - update:
+            tableName: users
+            columns:
+              - column: { name: full_name, value: "2dTE6zzNxVo597TrdUr93WgOpBCyI1rLNVbIsY7tNPhtHR8z67ah" }
+            where: id=3

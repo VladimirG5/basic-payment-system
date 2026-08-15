@@ -20,6 +20,12 @@ spring:
       hibernate:
         format_sql: true
 
+# Dev-only key committed for local/demo compose - not a real secret (same disclaimer as
+# gateway-service's jwt.secret). Must match gateway-service's encryption.key exactly - both
+# services decrypt the same `full_name` column, see EncryptedStringConverter.
+encryption:
+  key: ${ENCRYPTION_KEY:mzD/i0fiHcYLv3g0wwTlvAp49wYo1MFNRYBM/f52XPI=}
+
 management:
   endpoints:
     web:

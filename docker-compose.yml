@@ -29,6 +29,9 @@ services:
       DB_NAME: banking
       DB_USERNAME: banking
       DB_PASSWORD: bankingpass
+      # Dev-only key committed for local/demo compose - not a real secret. Must match
+      # gateway-service's ENCRYPTION_KEY below - both decrypt the same full_name column.
+      ENCRYPTION_KEY: mzD/i0fiHcYLv3g0wwTlvAp49wYo1MFNRYBM/f52XPI=
     ports:
       - "8081:8081"
     depends_on:
@@ -77,6 +80,9 @@ services:
       JWT_SECRET: dev-only-signing-key-change-me-before-any-real-deploy-32b
       PAYMENT_CORE_BASE_URL: http://payment-core-service:8081
       AUTH_SERVICE_BASE_URL: http://auth-service:8082
+      # Dev-only key committed for local/demo compose - not a real secret. Must match
+      # payment-core-service's ENCRYPTION_KEY above.
+      ENCRYPTION_KEY: mzD/i0fiHcYLv3g0wwTlvAp49wYo1MFNRYBM/f52XPI=
     ports:
       - "8080:8080"
     depends_on:

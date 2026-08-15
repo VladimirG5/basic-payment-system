@@ -26,6 +26,11 @@ payment-core:
 auth-service:
   base-url: ${AUTH_SERVICE_BASE_URL:http://localhost:8082}
 
+# Dev-only key committed for local/demo compose - not a real secret. Must match
+# payment-core-service's encryption.key exactly - see EncryptedStringConverter.
+encryption:
+  key: ${ENCRYPTION_KEY:mzD/i0fiHcYLv3g0wwTlvAp49wYo1MFNRYBM/f52XPI=}
+
 management:
   endpoints:
     web:
